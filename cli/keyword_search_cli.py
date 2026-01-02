@@ -13,38 +13,44 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     subparsers.add_parser("build")
+    tf_parser = subparsers.add_parser("tf")
+    tf_parser.add_argument("doc_id", type=int)
+    tf_parser.add_argument("term", type=str)
 
+    
     search_parser = subparsers.add_parser("search", help="Search movies using BM25")
     search_parser.add_argument("query", type=str, help="Search query")
 
     args = parser.parse_args()
     # args.command = "search"
-    # args.query = "the hot shot"
+    # args.query = "brave"
+    # args.command = "tf"
+    # args.doc_id = 424
+    # args.term = 'trapper'
     match args.command:
         case "search":
             # print the search query here
             print(f"Searching for: {args.query}")
-            with open("./data/movies.json", 'r') as file:
-                data = json.load(file)
-                movies = data.get("movies")
-                stop_words = get_stop_words()
-                res = []
-                query_args = list(filter(lambda x: x not in stop_words, args.query.lower().translate(str.maketrans("", "", string.punctuation)).split()))
-                query_args = list(map(lambda x: stemmer.stem(x), query_args))
-                for movie in movies:
-                    title = movie['title'].lower().translate(str.maketrans("", "", string.punctuation))
-                    for arg in query_args:
-                        if arg in title:
-                            res.append(movie['title'])
-                            break
-                
-                movie_list_count = len(res) if len(res) <= 5 else 5
-                [print(f"{x + 1}. {res[x]}") for x in range(movie_list_count)] 
+            stop_words = get_stop_words()
+            res = []
+            query_args = list(filter(lambda x: x not in stop_words, args.query.lower().translate(str.maketrans("", "", string.punctuation)).split()))
+            query_args = list(map(lambda x: stemmer.stem(x), query_args))
+            index = InvertedIndex()
+            index.load()
+            for arg in query_args:
+                res += index.get_documents(arg)
+                if len(res) >= 5:
+                    break
+            movie_list_count = len(res) if len(res) <= 5 else 5
+            [print(f"{res[x]} {index.get_titles(res[x])}") for x in range(movie_list_count)] 
         case "build":
             builder = InvertedIndex()
             builder.build()
             builder.save()
-            print(f"First document for token 'merida' = {builder.get_documents('merida')[0]}")
+        case "tf":
+            counter = InvertedIndex()
+            counter.load()
+            print(f'{counter.get_tf(int(args.doc_id), args.term)}')
         case _:
             parser.print_help()
 
