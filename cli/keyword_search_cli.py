@@ -3,12 +3,16 @@
 import argparse
 import json
 import string
+# from InvertedIndex import InvertedIndex
 from nltk.stem import PorterStemmer
+
+from InvertedIndex import InvertedIndex
 
 def main() -> None:
     stemmer = PorterStemmer()
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers.add_parser("build")
 
     search_parser = subparsers.add_parser("search", help="Search movies using BM25")
     search_parser.add_argument("query", type=str, help="Search query")
@@ -36,7 +40,11 @@ def main() -> None:
                 
                 movie_list_count = len(res) if len(res) <= 5 else 5
                 [print(f"{x + 1}. {res[x]}") for x in range(movie_list_count)] 
-                
+        case "build":
+            builder = InvertedIndex()
+            builder.build()
+            builder.save()
+            print(f"First document for token 'merida' = {builder.get_documents('merida')[0]}")
         case _:
             parser.print_help()
 
