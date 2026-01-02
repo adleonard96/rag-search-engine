@@ -3,9 +3,10 @@
 import argparse
 import json
 import string
-
+from nltk.stem import PorterStemmer
 
 def main() -> None:
+    stemmer = PorterStemmer()
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -13,8 +14,8 @@ def main() -> None:
     search_parser.add_argument("query", type=str, help="Search query")
 
     args = parser.parse_args()
-    args.command = "search"
-    args.query = "furious fast"
+    # args.command = "search"
+    # args.query = "the hot shot"
     match args.command:
         case "search":
             # print the search query here
@@ -22,8 +23,10 @@ def main() -> None:
             with open("./data/movies.json", 'r') as file:
                 data = json.load(file)
                 movies = data.get("movies")
+                stop_words = get_stop_words()
                 res = []
-                query_args = args.query.lower().translate(str.maketrans("", "", string.punctuation)).split()
+                query_args = list(filter(lambda x: x not in stop_words, args.query.lower().translate(str.maketrans("", "", string.punctuation)).split()))
+                query_args = list(map(lambda x: stemmer.stem(x), query_args))
                 for movie in movies:
                     title = movie['title'].lower().translate(str.maketrans("", "", string.punctuation))
                     for arg in query_args:
@@ -37,6 +40,12 @@ def main() -> None:
         case _:
             parser.print_help()
 
+
+def get_stop_words():
+    with open("./data/stopwords.txt") as text:
+        return text.read().splitlines()
+        
+        
 
 if __name__ == "__main__":
     main()
