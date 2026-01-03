@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 import pickle
 import os
 import json
@@ -9,7 +10,7 @@ from collections import Counter
 class InvertedIndex:
     
     def __init__(self):
-        self.index = defaultdict(list)
+        self.index = defaultdict(set)
         self.docmap = defaultdict(str)
         self.term_frequencies = defaultdict(Counter)
         
@@ -17,7 +18,7 @@ class InvertedIndex:
         self.docmap[doc_id] = text
         self.term_frequencies[doc_id].update(tokenize_text(text))
         for val in set(tokenize_text(text)):
-            self.index[val].append(doc_id)
+            self.index[val].add(doc_id)
             
     def get_documents(self, term: str):
         return sorted(list(set(self.index[term.lower()])))
@@ -32,7 +33,15 @@ class InvertedIndex:
             
             for movie in movies:
                 self.__add_document(movie["id"], f"{movie["title"]} {movie["description"]}")
-                
+    
+    def get_doc_count(self):
+        return len(self.docmap.keys())
+    
+    def get_idf(self, term):
+        self.load()
+        total_docs = self.get_doc_count()
+        total_matches = len(self.get_documents(tokenize_text(term)[0]))
+        return math.log((total_docs + 1) / (total_matches + 1))
                 
     def save(self):
         os.makedirs("cache", exist_ok=True)
@@ -63,7 +72,14 @@ class InvertedIndex:
         if len(term.split()) > 1:
             raise Exception
         return self.term_frequencies[doc_id][term] if self.term_frequencies[doc_id][term] else 0
-            
+    
+    def get_tf_idf(self, doc_id, term):
+        self.load()
+        term = tokenize_text(term)[0]
+        tf = self.get_tf(doc_id=doc_id, term=term)
+        idf = self.get_idf(term=term)
+        return tf * idf
+    
 def preprocess_text(text: str) -> str:
     text = text.lower()
     text = text.translate(str.maketrans("", "", string.punctuation))

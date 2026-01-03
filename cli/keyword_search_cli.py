@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import math
 import string
 # from InvertedIndex import InvertedIndex
 from nltk.stem import PorterStemmer
@@ -13,6 +14,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     subparsers.add_parser("build")
+    tfidf_parser = subparsers.add_parser("tfidf")
+    tfidf_parser.add_argument("doc_id", type=int)
+    tfidf_parser.add_argument("term")
+    
+    idf_parser = subparsers.add_parser("idf")
+    idf_parser.add_argument("term")
+    
     tf_parser = subparsers.add_parser("tf")
     tf_parser.add_argument("doc_id", type=int)
     tf_parser.add_argument("term", type=str)
@@ -22,8 +30,8 @@ def main() -> None:
     search_parser.add_argument("query", type=str, help="Search query")
 
     args = parser.parse_args()
-    # args.command = "search"
-    # args.query = "brave"
+    # args.command = "idf"
+    # args.term = "grizzly"
     # args.command = "tf"
     # args.doc_id = 424
     # args.term = 'trapper'
@@ -51,6 +59,14 @@ def main() -> None:
             counter = InvertedIndex()
             counter.load()
             print(f'{counter.get_tf(int(args.doc_id), args.term)}')
+        case "idf":
+            data = InvertedIndex()
+            print(f"Inverse document frequency of '{args.term}': {data.get_idf(args.term):.2f}")
+        case "tfidf":
+            data = InvertedIndex()
+            tf_idf = data.get_tf_idf(args.doc_id, args.term)
+            print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tf_idf:.2f}")
+                    
         case _:
             parser.print_help()
 
