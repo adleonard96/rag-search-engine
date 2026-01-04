@@ -8,6 +8,7 @@ import string
 from nltk.stem import PorterStemmer
 
 from InvertedIndex import InvertedIndex
+from constants import Constants
 
 def main() -> None:
     stemmer = PorterStemmer()
@@ -25,12 +26,22 @@ def main() -> None:
     tf_parser.add_argument("doc_id", type=int)
     tf_parser.add_argument("term", type=str)
 
+    bm25_idf_parser = subparsers.add_parser("bm25idf", help="Get BM25 IDF score for a given term")
+    bm25_idf_parser.add_argument("term", type=str, help="Term to get BM25 IDF score for")
     
     search_parser = subparsers.add_parser("search", help="Search movies using BM25")
     search_parser.add_argument("query", type=str, help="Search query")
 
+    bm25_tf_parser = subparsers.add_parser(
+    "bm25tf", help="Get BM25 TF score for a given document ID and term"
+    )
+    bm25_tf_parser.add_argument("doc_id", type=int, help="Document ID")
+    bm25_tf_parser.add_argument("term", type=str, help="Term to get BM25 TF score for")
+    bm25_tf_parser.add_argument("k1", type=float, nargs='?', default=Constants.BM25_K1.value, help="Tunable BM25 K1 parameter")
+    bm25_tf_parser.add_argument("b", type=float, nargs='?', default=Constants.BM25_B.value, help="Tunable BM25 b parameter")
+    
     args = parser.parse_args()
-    # args.command = "idf"
+    # args.command = "bm25idf"
     # args.term = "grizzly"
     # args.command = "tf"
     # args.doc_id = 424
@@ -66,7 +77,15 @@ def main() -> None:
             data = InvertedIndex()
             tf_idf = data.get_tf_idf(args.doc_id, args.term)
             print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tf_idf:.2f}")
-                    
+        case "bm25idf":
+            data = InvertedIndex()
+            bm25idf = data.get_bm25_idf(args.term)
+            print(f"BM25 IDF score of '{args.term}': {bm25idf:.2f}")
+        case "bm25tf":   
+            data = InvertedIndex()
+            data.load()
+            bm25tf = data.get_bm25_tf(args.doc_id, args.term, args.k1, args.b)
+            print(f"BM25 TF score of '{args.term}' in document '{args.doc_id}': {bm25tf:.2f}")
         case _:
             parser.print_help()
 

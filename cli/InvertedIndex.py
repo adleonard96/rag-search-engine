@@ -6,6 +6,7 @@ import json
 import string
 from nltk.stem import PorterStemmer
 from collections import Counter
+from constants import Constants
 
 class InvertedIndex:
     
@@ -13,13 +14,23 @@ class InvertedIndex:
         self.index = defaultdict(set)
         self.docmap = defaultdict(str)
         self.term_frequencies = defaultdict(Counter)
+        self.doc_lengths = defaultdict(int)
         
     def __add_document(self, doc_id, text: str):
         self.docmap[doc_id] = text
         self.term_frequencies[doc_id].update(tokenize_text(text))
+        self.doc_lengths[doc_id] = len(tokenize_text(text))
         for val in set(tokenize_text(text)):
             self.index[val].add(doc_id)
-            
+    
+    def __get_avg_doc_length(self) -> float:
+        doc_total = len(self.doc_lengths.keys())
+        total = 0
+        for doc in self.doc_lengths.values():
+            total += doc
+        
+        return  total / doc_total
+         
     def get_documents(self, term: str):
         return sorted(list(set(self.index[term.lower()])))
 
@@ -42,7 +53,16 @@ class InvertedIndex:
         total_docs = self.get_doc_count()
         total_matches = len(self.get_documents(tokenize_text(term)[0]))
         return math.log((total_docs + 1) / (total_matches + 1))
-                
+    
+    def __get_document_frequencies(self, term):
+        return len(self.get_documents(term))
+    
+    def get_bm25_tf(self, doc_id, term, k1=Constants.BM25_K1.value, b=Constants.BM25_B.value):
+        term = tokenize_text(term)[0]
+        length_norm = 1- b + b * (self.doc_lengths[doc_id] / self.__get_avg_doc_length())
+        tf = self.get_tf(doc_id=doc_id, term=term)
+        return (tf * (k1 + 1)) / (tf + k1 * length_norm)
+        
     def save(self):
         os.makedirs("cache", exist_ok=True)
         
@@ -57,6 +77,10 @@ class InvertedIndex:
         term_frequencies = open("./cache/term_frequencies.pkl", "wb")
         pickle.dump(self.term_frequencies, term_frequencies)
         term_frequencies.close()
+        
+        lengths_file = open("./cache/doc_lengths.pkl", "wb")
+        pickle.dump(self.doc_lengths, lengths_file)
+        lengths_file.close()
     
     def load(self):
         if not os.path.isfile("./cache/index.pkl") or not os.path.isfile("./cache/docmap.pkl"):
@@ -67,6 +91,8 @@ class InvertedIndex:
             self.docmap = pickle.load(f)
         with open("./cache/term_frequencies.pkl", "rb") as f:
             self.term_frequencies = pickle.load(f)
+        with open("./cache/doc_lengths.pkl", "rb") as f:
+            self.doc_lengths = pickle.load(f)
             
     def get_tf(self, doc_id, term):
         if len(term.split()) > 1:
@@ -79,6 +105,17 @@ class InvertedIndex:
         tf = self.get_tf(doc_id=doc_id, term=term)
         idf = self.get_idf(term=term)
         return tf * idf
+    
+    def get_bm25_idf(self, term: str) -> float:
+        self.load()
+        term = tokenize_text(term)
+        if len(term) != 1:
+            raise Exception
+        term = term[0]
+        
+        N = self.get_doc_count()
+        df = len(self.index[term])
+        return math.log((N - df + 0.5) / (df + 0.5) + 1)
     
 def preprocess_text(text: str) -> str:
     text = text.lower()
