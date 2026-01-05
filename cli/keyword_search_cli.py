@@ -40,12 +40,15 @@ def main() -> None:
     bm25_tf_parser.add_argument("k1", type=float, nargs='?', default=Constants.BM25_K1.value, help="Tunable BM25 K1 parameter")
     bm25_tf_parser.add_argument("b", type=float, nargs='?', default=Constants.BM25_B.value, help="Tunable BM25 b parameter")
     
+    bm25search_parser = subparsers.add_parser("bm25search", help="Search movies using full BM25 scoring")
+    bm25search_parser.add_argument("query", type=str, help="Search query")
+    bm25search_parser.add_argument("limit", nargs="?", type=int, default=5, help="Limit results")
+    
     args = parser.parse_args()
-    # args.command = "bm25idf"
-    # args.term = "grizzly"
-    # args.command = "tf"
-    # args.doc_id = 424
-    # args.term = 'trapper'
+    # args.command = "bm25search"
+    # args.query = "space adventure"
+    # args.limit = 5
+    
     match args.command:
         case "search":
             # print the search query here
@@ -86,6 +89,14 @@ def main() -> None:
             data.load()
             bm25tf = data.get_bm25_tf(args.doc_id, args.term, args.k1, args.b)
             print(f"BM25 TF score of '{args.term}' in document '{args.doc_id}': {bm25tf:.2f}")
+        case "bm25search":
+            data = InvertedIndex()
+            data.load()
+            res = data.bm25_search(args.query, args.limit)
+            for i in range(len(res)):
+                doc_id = res[i].key()
+                score = res[i].values()[0]
+                print(f"{i + 1} ({doc_id}) {data.get_titles(doc_id)} - Score: {score:.2f}")
         case _:
             parser.print_help()
 
