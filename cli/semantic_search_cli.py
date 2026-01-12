@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
-from lib.semantic_search import verify_model, embed_text, verify_embeddings, embed_query_text, search, chunk, semantic_chunck
+from lib.semantic_search import verify_model, embed_text, verify_embeddings, embed_query_text, search, read_movies
+from lib.chunk_funcs import chunk, semantic_chunck
+from lib.chunked_semantic_search import ChunkedSemanticSearch
+
 
 def main():
     parser = argparse.ArgumentParser(description="Semantic Search CLI")
@@ -24,6 +27,8 @@ def main():
     semantic_chunk_parser.add_argument("text")
     semantic_chunk_parser.add_argument("--max-chunk-size", type=int, nargs="?", default=4)
     semantic_chunk_parser.add_argument("--overlap", type=int, nargs="?", default=0)
+    
+    subparsers.add_parser("embed_chunks")
     
     args = parser.parse_args()
     # args.command = "verify_embeddings"
@@ -48,6 +53,10 @@ def main():
             print(f"Semantically chunking {len(args.text)} characters")    
             for i, chunk_val in enumerate(chunks):
                 print(f"{i + 1}. {chunk_val}")
+        case "embed_chunks":
+            s = ChunkedSemanticSearch()
+            movies = read_movies()
+            s.load_or_create_chunk_embeddings(movies)
         case _:
             parser.print_help()
 
