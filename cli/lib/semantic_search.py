@@ -75,7 +75,7 @@ def embed_text(text):
     print(f"Text: {text}")
     print(f"First 3 dimensions: {embedding[:3]}")
     print(f"Dimensions: {embedding.shape[0]}")
-
+    
 
 def read_movies():
     with open("./data/movies.json", 'r') as file:
