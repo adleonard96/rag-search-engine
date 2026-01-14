@@ -76,7 +76,6 @@ class InvertedIndex:
                 score += self.bm25(doc_id, token)
             scores[doc_id] = score
         
-        vals: list[dict] = []
         
         sorted_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
