@@ -13,15 +13,13 @@
             "args": "${command:pickArgs}"
         },
         {
-            "name": "Debug Hybrid Search CLI",
+            "name": "Debug rrf Search CLI",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/cli/hybrid_search_cli.py",
             "args": [
-                "weighted-search",
-                "British Bear",
-                "--alpha",
-                "0.5",
+                "rrf-search",
+                "family fighting movie",
                 "--limit",
                 "25"
             ],
