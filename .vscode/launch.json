@@ -19,9 +19,9 @@
             "program": "${workspaceFolder}/cli/hybrid_search_cli.py",
             "args": [
                 "rrf-search",
-                "family fighting movie",
-                "--limit",
-                "25"
+                "briish bear",
+                "--enhance",
+                "spell"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
