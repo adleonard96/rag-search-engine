@@ -23,6 +23,12 @@ def main() -> None:
         case "weighted-search":
             hybrid = HybridSearch(read_movies())
             res = hybrid.weighted_search(args.query, args.alpha, args.limit)
+            
+            for i, movie in enumerate(res):
+                print(f"{i + 1}. {movie[1]["title"]}")
+                print(f"Hybrid Score: {movie[1]["hybrid_score"]:.3f}")
+                print(f"BM25: {movie[1]['bm25_score']:.3f}, Semantic: {movie[1]["semantic_score"]:.3f}")
+                print(f"{movie[1]["desciption"]}")
         case _:
             parser.print_help()
 

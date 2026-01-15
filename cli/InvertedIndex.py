@@ -16,9 +16,9 @@ class InvertedIndex:
         self.docmap = defaultdict(str)
         self.term_frequencies = defaultdict(Counter)
         self.doc_lengths = defaultdict(int)
+        self.index_path =  "./cache/index.pkl"
         
     def __add_document(self, doc_id, text: str):
-        self.docmap[doc_id] = text
         self.term_frequencies[doc_id].update(tokenize_text(text))
         self.doc_lengths[doc_id] = len(tokenize_text(text))
         for val in set(tokenize_text(text)):
@@ -44,13 +44,14 @@ class InvertedIndex:
             movies = data.get("movies")
             
             for movie in movies:
+                self.docmap[movie["id"]] = movie
                 self.__add_document(movie["id"], f"{movie["title"]} {movie["description"]}")
     
     def get_doc_count(self):
         return len(self.docmap.keys())
     
     def get_idf(self, term):
-        self.load()
+        # self.load()
         total_docs = self.get_doc_count()
         total_matches = len(self.get_documents(tokenize_text(term)[0]))
         return math.log((total_docs + 1) / (total_matches + 1))
@@ -83,9 +84,9 @@ class InvertedIndex:
         for doc_id, score in sorted_docs[:limit]:
             doc = self.docmap[doc_id]
             formatted_result = format_search_result(
-                doc_id=doc["id"],
+                doc_id=doc_id,
                 title=doc["title"],
-                document=doc["description"],
+                document=doc,
                 score=score,
             )
             results.append(formatted_result)
@@ -129,14 +130,14 @@ class InvertedIndex:
         return self.term_frequencies[doc_id][term] if self.term_frequencies[doc_id][term] else 0
     
     def get_tf_idf(self, doc_id, term):
-        self.load()
+        # self.load()
         term = tokenize_text(term)[0]
         tf = self.get_tf(doc_id=doc_id, term=term)
         idf = self.get_idf(term=term)
         return tf * idf
     
     def get_bm25_idf(self, term: str) -> float:
-        self.load()
+        # self.load()
         term = tokenize_text(term)
         if len(term) != 1:
             raise Exception

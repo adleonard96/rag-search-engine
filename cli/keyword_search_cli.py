@@ -94,8 +94,8 @@ def main() -> None:
             data.load()
             res = data.bm25_search(args.query, args.limit)
             for i in range(len(res)):
-                doc_id = res[i].key()
-                score = res[i].values()[0]
+                doc_id = res[i]["id"]
+                score = res[i]["score"]
                 print(f"{i + 1} ({doc_id}) {data.get_titles(doc_id)} - Score: {score:.2f}")
         case _:
             parser.print_help()
