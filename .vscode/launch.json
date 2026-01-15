@@ -19,9 +19,11 @@
             "program": "${workspaceFolder}/cli/hybrid_search_cli.py",
             "args": [
                 "rrf-search",
-                "briish bear",
-                "--enhance",
-                "spell"
+                "family movie about bears in the woods",
+                "--rerank-method",
+                "batch",
+                "--limit",
+                "3"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

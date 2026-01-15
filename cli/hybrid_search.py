@@ -31,7 +31,7 @@ class HybridSearch:
         for i in range(len(nc_scores)):
             id = chunk_res[i]["id"]
             mapper[id]["title"] = self.idx.docmap[id]['title']
-            mapper[id]["desciption"] = self.idx.docmap[id]['description'][:100]
+            mapper[id]["description"] = self.idx.docmap[id]['description'][:100]
             mapper[id]["semantic_score"] = nc_scores[i]
         
         for i in range(len(nb_scores)):
@@ -53,7 +53,7 @@ class HybridSearch:
         for i in range(len(chunk_res)):
             id = chunk_res[i]["id"]
             mapper[id]["title"] = self.idx.docmap[id]['title']
-            mapper[id]["desciption"] = self.idx.docmap[id]['description'][:100]
+            mapper[id]["description"] = self.idx.docmap[id]['description'][:100]
             mapper[id]["semantic_rank"] = i + 1
         
         for i in range(len(b25_res)):

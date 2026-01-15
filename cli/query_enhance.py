@@ -63,3 +63,36 @@ def expand(query):
                 Query: "{query}"
                 """
     return call_model(prompt)
+
+def rerank(query, title, doc):
+    prompt = f"""Rate how well this movie matches the search query.
+
+                Query: "{query}"
+                Movie: {title} - {doc}
+                
+                Consider:
+                - Direct relevance to query
+                - User intent (what they're looking for)
+                - Content appropriateness
+                
+                Rate 0-10 (10 = perfect match).
+                Give me ONLY the number in your response, no other text or explanation.
+                
+                Score:"""
+                
+    return call_model(prompt)
+
+def batch(query, doc_list_str):
+    promt = f"""Rank these movies by relevance to the search query.
+
+            Query: "{query}"
+
+            Movies:
+            {doc_list_str}
+
+            Return ONLY the IDs in order of relevance (best match first). Return a valid JSON list, nothing else. For example:
+
+            [75, 12, 34, 2, 1]
+            """
+            
+    return call_model(promt)
