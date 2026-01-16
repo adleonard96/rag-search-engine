@@ -21,9 +21,9 @@
                 "rrf-search",
                 "family movie about bears in the woods",
                 "--rerank-method",
-                "batch",
+                "cross_encoder",
                 "--limit",
-                "3"
+                "25"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

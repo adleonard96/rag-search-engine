@@ -113,12 +113,23 @@ def main() -> None:
                     case "cross_encoder":
                         pairs = []
                         for doc in res:
-                            pairs.append([args.query, f"{doc[1].get('title', '')} - {doc[1].get('document', '')}"])
+                            pairs.append([args.query, f"{doc[1].get('title', '')} - {doc[1].get('description', '')}"])
+                        
+                        cross_encoder = CrossEncoder("cross-encoder/ms-marco-TinyBERT-L2-v2")
+                        # scores is a list of numbers, one for each pair
+                        scores = cross_encoder.predict(pairs)
+                        for i, result in enumerate(res):
+                            result = list(result)
+                            result[1]["cross_score"] = scores[i]
+                            
+                        res = sorted(res, key=lambda x: x[1]["cross_score"], reverse=True)[:int(args.limit / 5)]
             if exit == 0:     
                 for i, movie in enumerate(res):
                     print(f"{i + 1}. {movie[1]["title"]}")
-                    if movie[1]["rerank"]:
+                    if movie[1].get("rerank") and args.rerank_method == "individual":
                         print(f"Rerank Score: {movie[1]["rerank"]}/10")
+                    elif movie[1].get("cross_score") and args.rerank_method == "cross_encoder":
+                        print(f"Cross Encoder Score: {movie[1]["cross_score"]:.3f}")
                     print(f"RRF: {movie[1]["rrf_score"]:.3f}")
                     print(f"BM25 Rank: {movie[1]['bm25_rank']:.3f}, Semantic Rank: {movie[1]["semantic_rank"]:.3f}")
                     print(f"{movie[1]["description"]}")
