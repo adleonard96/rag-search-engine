@@ -42,6 +42,7 @@ def main() -> None:
                 print(f"BM25: {movie[1]['bm25_score']:.3f}, Semantic: {movie[1]["semantic_score"]:.3f}")
                 print(f"{movie[1]["description"]}")
         case "rrf-search":
+            print(f"Original query: {args.query}")
             if args.rerank_method:
                 match args.rerank_method:
                     case "individual":
@@ -68,6 +69,7 @@ def main() -> None:
                         pass
             hybrid = HybridSearch(read_movies())
             res = hybrid.rrf_search(args.query, args.k, args.limit)
+            print(f"Original results of RRF: {res}")
             new_res = []
             exit = 0
             if args.rerank_method:

@@ -16,14 +16,10 @@
             "name": "Debug rrf Search CLI",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/cli/hybrid_search_cli.py",
+            "program": "${workspaceFolder}/cli/evaluation_cli.py",
             "args": [
-                "rrf-search",
-                "family movie about bears in the woods",
-                "--rerank-method",
-                "cross_encoder",
                 "--limit",
-                "25"
+                "3"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
