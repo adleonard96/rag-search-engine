@@ -16,11 +16,10 @@
             "name": "Debug rrf Search CLI",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/cli/hybrid_search_cli.py",
+            "program": "${workspaceFolder}/cli/augmented_generation_cli.py",
             "args": [
-                "rrf-search",
-                "family movie about bears in the woods",
-                "--evaluate"
+                "summarize",
+                "movies about action and dinosaurs",
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

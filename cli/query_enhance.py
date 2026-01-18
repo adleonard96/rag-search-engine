@@ -118,3 +118,27 @@ def eval(query, results):
                 [2, 0, 3, 2, 0, 1]"""
                 
     return call_model(prompt)
+
+def rrf_llm_response(query, docs):
+    prompt = f"""Answer the question or provide information based on the provided documents. This should be tailored to Hoopla users. Hoopla is a movie streaming service.
+
+                Query: {query}
+
+                Documents:
+                {docs}
+
+                Provide a comprehensive answer that addresses the query:"""
+    
+    return call_model(prompt)
+
+def summarize(query, search_results):
+    prompt = f"""Provide information useful to this query by synthesizing information from multiple search results in detail.
+                The goal is to provide comprehensive information so that users know what their options are.
+                Your response should be information-dense and concise, with several key pieces of information about the genre, plot, etc. of each movie.
+                This should be tailored to Hoopla users. Hoopla is a movie streaming service.
+                Query: {query}
+                Search Results:
+                {search_results}
+                Provide a comprehensive 3–4 sentence answer that combines information from multiple sources:
+                """
+    return call_model(prompt)
