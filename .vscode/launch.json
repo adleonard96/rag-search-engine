@@ -18,8 +18,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/cli/augmented_generation_cli.py",
             "args": [
-                "summarize",
-                "movies about action and dinosaurs",
+                "question",
+                "Who are the main characters in Jurassic Park?",
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
