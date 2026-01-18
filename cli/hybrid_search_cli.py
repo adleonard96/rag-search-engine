@@ -4,7 +4,7 @@ import json
 import time
 from lib.semantic_search import read_movies
 from hybrid_search import HybridSearch, normalize
-from query_enhance import (spell_check, rewrite, expand, rerank, batch)
+from query_enhance import (spell_check, rewrite, expand, rerank, batch, eval)
 from sentence_transformers import CrossEncoder
 
 def main() -> None:
@@ -24,6 +24,7 @@ def main() -> None:
     rrf_search.add_argument("--limit", nargs="?", type=int, default=5)
     rrf_search.add_argument("--enhance", type=str, choices=["spell", "rewrite", "expand"], help="Query enhancement method")
     rrf_search.add_argument("--rerank-method", nargs="?", choices=["individual", "batch", "cross_encoder"], type=str )
+    rrf_search.add_argument("--evaluate", nargs="?", type=bool)
     
     args = parser.parse_args()
 
@@ -72,6 +73,8 @@ def main() -> None:
             print(f"Original results of RRF: {res}")
             new_res = []
             exit = 0
+            formated_res = []
+            titles = []
             if args.rerank_method:
                 match args.rerank_method:
                     case "individual":
@@ -107,11 +110,14 @@ def main() -> None:
                         new_order = sorted(res_dict.items(), key=lambda x: x[1]["rerank"])[:int(args.limit/5)]
                         
                         for i, movie in enumerate(new_order):
-                            print(f"{i + 1}. {movie[1]["title"]}")
-                            print(f"Rerank Rank: {movie[1]["rerank"]}/10")
-                            print(f"RRF: {movie[1]["rrf_score"]:.3f}")
-                            print(f"BM25 Rank: {movie[1]['bm25_rank']:.3f}, Semantic Rank: {movie[1]["semantic_rank"]:.3f}")
-                            print(f"{movie[1]["description"]}")
+                            titles.append(movie[1]["title"])
+                            ans = f'''{i + 1}. {movie[1]["title"]}
+                            Rerank Rank: {movie[1]["rerank"]}/10
+                            RRF: {movie[1]["rrf_score"]:.3f}
+                            BM25 Rank: {movie[1]['bm25_rank']:.3f}, Semantic Rank: {movie[1]["semantic_rank"]:.3f}
+                            {movie[1]["description"]}'''
+                            formated_res.append(ans)
+                            print(ans)
                     case "cross_encoder":
                         pairs = []
                         for doc in res:
@@ -127,14 +133,23 @@ def main() -> None:
                         res = sorted(res, key=lambda x: x[1]["cross_score"], reverse=True)[:int(args.limit / 5)]
             if exit == 0:     
                 for i, movie in enumerate(res):
-                    print(f"{i + 1}. {movie[1]["title"]}")
+                    ans = ""
+                    titles.append(movie[1]["title"])
+                    ans += f"{i + 1}. {movie[1]["title"]}\n"
                     if movie[1].get("rerank") and args.rerank_method == "individual":
-                        print(f"Rerank Score: {movie[1]["rerank"]}/10")
+                        ans += f"Rerank Score: {movie[1]["rerank"]}/10\n"
                     elif movie[1].get("cross_score") and args.rerank_method == "cross_encoder":
-                        print(f"Cross Encoder Score: {movie[1]["cross_score"]:.3f}")
-                    print(f"RRF: {movie[1]["rrf_score"]:.3f}")
-                    print(f"BM25 Rank: {movie[1]['bm25_rank']:.3f}, Semantic Rank: {movie[1]["semantic_rank"]:.3f}")
-                    print(f"{movie[1]["description"]}")
+                        ans += f"Cross Encoder Score: {movie[1]["cross_score"]:.3f}\n"
+                    ans += f"RRF: {movie[1]["rrf_score"]:.3f}\n"
+                    ans += f"BM25 Rank: {movie[1]['bm25_rank']:.3f}, Semantic Rank: {movie[1]["semantic_rank"]:.3f}\n"
+                    ans += f"{movie[1]["description"]}\n"
+                    formated_res.append(ans)
+                    
+            evals = eval(args.query, formated_res)
+            evals = json.loads(evals.text.replace("\n", ""))
+            for i in range(len(titles)):
+                print(f"{i+1}. {titles[i]}: {evals[i]}/3")
+            
         case _:
             parser.print_help()
 
