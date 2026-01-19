@@ -16,10 +16,12 @@
             "name": "Debug rrf Search CLI",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/cli/augmented_generation_cli.py",
+            "program": "${workspaceFolder}/cli/describe_image_cli.py",
             "args": [
-                "question",
-                "Who are the main characters in Jurassic Park?",
+                "--image",
+                "data/paddington.jpeg",
+                "--query",
+                "bear in London"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

@@ -8,6 +8,7 @@ dependencies = [
     "google-genai>=1.58.0",
     "nltk==3.9.1",
     "numpy>=1.24.4",
+    "pillow>=12.1.0",
     "python-dotenv>=1.0.1",
     "sentence-transformers>=3.2.1",
 ]
