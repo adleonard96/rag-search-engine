@@ -16,12 +16,10 @@
             "name": "Debug rrf Search CLI",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/cli/describe_image_cli.py",
+            "program": "${workspaceFolder}/cli/multimodal_search_cli.py",
             "args": [
-                "--image",
-                "data/paddington.jpeg",
-                "--query",
-                "bear in London"
+                "image_search",
+                "data/paddington.jpeg"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
