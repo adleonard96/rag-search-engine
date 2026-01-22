@@ -48,7 +48,8 @@ class SemanticSearch:
         embedding = self.generate_embedding(query)
         similarity: list[tuple] = []
         for i in range(len(self.embedding)):
-            similarity.append((cosine_similarity(self.embedding[i], embedding), self.documents[i]))
+            if self.documents:
+                similarity.append((cosine_similarity(self.embedding[i], embedding), self.documents[i]))
 
         similarity.sort(key=lambda x: x[0], reverse=True)        
         
